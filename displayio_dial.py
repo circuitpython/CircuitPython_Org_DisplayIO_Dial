@@ -378,7 +378,7 @@ class Dial(Widget):
 
         # create the needle
         self._create_needle()
-        self.append(self._needle_vector_shape)
+        self.append(self._needle)
         self._update_needle(self._value)
 
     def _adjust_dimensions(self, width, height):
@@ -462,15 +462,11 @@ class Dial(Widget):
 
     def _create_needle(self):
         # Create the needle
-        self._needle_palette = displayio.Palette(2)
-        self._needle_palette.make_transparent(0)
-        self._needle_palette[1] = self._needle_color
+        self._needle_palette = displayio.Palette(1)
+        self._needle_palette[0] = self._needle_color
 
         self._needle = vectorio.Polygon(
-            points=[(100, 100), (100, 50), (50, 50), (50, 100)]
-        )
-        self._needle_vector_shape = vectorio.VectorShape(
-            shape=self._needle,
+            points=[(100, 100), (100, 50), (50, 50), (50, 100)],
             pixel_shader=self._needle_palette,
             x=0,
             y=0,
