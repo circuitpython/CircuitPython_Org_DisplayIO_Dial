@@ -26,6 +26,7 @@ Implementation Notes
 
 
 import math
+import random
 import displayio
 import vectorio
 
@@ -38,7 +39,6 @@ except NameError:
 from terminalio import FONT as terminalio_FONT
 from adafruit_display_text import bitmap_label
 from adafruit_displayio_layout.widgets.widget import Widget
-import random
 
 
 class Dial(Widget):
@@ -675,7 +675,7 @@ class Dial(Widget):
         if setting:
             self._throttle_hold_value = self.value
         self._throttle_setting = setting
-        
+
     @property
     def throttle_effect_move_rate(self):
         """The speed at which the throttle effect moves the dial per update"""
@@ -694,13 +694,25 @@ class Dial(Widget):
 
         if self._throttle_destination in (None, self._throttle_hold_value):
             limit_bound = self._throttle_setting * 10
-            self._throttle_destination = random.uniform(-limit_bound, limit_bound)/10 + self._throttle_hold_value
+            self._throttle_destination = (
+                random.uniform(-limit_bound, limit_bound) / 10
+                + self._throttle_hold_value
+            )
 
-        self.value = self.value + self._throttle_move_rate if self._throttle_destination > self.value else self.value - self._throttle_move_rate
+        self.value = (
+            self.value + self._throttle_move_rate
+            if self._throttle_destination > self.value
+            else self.value - self._throttle_move_rate
+        )
 
-        threshold_check = self.value >= self._throttle_destination if self._throttle_destination >= self._throttle_hold_value else self.value <= self._throttle_destination
+        threshold_check = (
+            self.value >= self._throttle_destination
+            if self._throttle_destination >= self._throttle_hold_value
+            else self.value <= self._throttle_destination
+        )
         if threshold_check:
             self._throttle_destination = self._throttle_hold_value
+
 
 def draw_ticks(
     target_bitmap,
