@@ -49,7 +49,7 @@ display.show(my_group)  # add high level Group to the display
 my_dial.value = 50
 
 my_dial.throttle_effect = 5  # Fluctuate at most "5" in either direction
-my_dial.throttle_move_rate = 0.1  # Fluctuate at "0.1" per throttle_update()
+my_dial.throttle_effect_move_rate = 0.1  # Fluctuate at "0.1" per throttle_update()
 
 while True:
 
