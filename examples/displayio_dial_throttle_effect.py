@@ -45,7 +45,7 @@ my_group.append(my_dial)
 
 display.show(my_group)  # add high level Group to the display
 
-# Set the dial to the
+# Set the dial to the value before turning on the throttle effect
 my_dial.value = 50
 
 my_dial.throttle_effect = 5  # Fluctuate at most "5" in either direction
