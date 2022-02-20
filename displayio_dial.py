@@ -38,6 +38,7 @@ except NameError:
 from terminalio import FONT as terminalio_FONT
 from adafruit_display_text import bitmap_label
 from adafruit_displayio_layout.widgets.widget import Widget
+import random
 
 
 class Dial(Widget):
@@ -283,6 +284,12 @@ class Dial(Widget):
         self._needle = None
         self._needle_vector_shape = None
         self._needle_width = None
+
+        # Initialize throttle effect parameters
+        self._throttle_setting = 0
+        self._throttle_move_rate = 0.1
+        self._throttle_destination = None
+        self._throttle_value = self.value
 
         self._initialize_dial(width, height)
 
@@ -654,6 +661,46 @@ class Dial(Widget):
         """The sweep angle of the dial, in degrees."""
         return self._sweep_angle
 
+    @property
+    def throttle_effect(self):
+        """The furtherest the throttle effect can randomly set the dial value relative
+        to its true position, in either direction.
+        """
+        return self._throttle_setting
+
+    @throttle_effect.setter
+    def throttle_effect(self, setting):
+        if setting < 0:
+            raise ValueError("Throttle effect setting must be larger than 0")
+        if setting:
+            self._throttle_hold_value = self.value
+        self._throttle_setting = setting
+        
+    @property
+    def throttle_effect_move_rate(self):
+        """The speed at which the throttle effect moves the dial per update"""
+        return self._throttle_move_rate
+
+    @throttle_effect_move_rate.setter
+    def throttle_effect_move_rate(self, rate):
+        self._throttle_move_rate = rate
+
+    def throttle_update(self):
+        """Updates the gauge and propagates the throttle effect refresh"""
+
+        if self._throttle_setting == 0:
+            self._throttle_destination = None
+            return
+
+        if self._throttle_destination in (None, self._throttle_hold_value):
+            limit_bound = self._throttle_setting * 10
+            self._throttle_destination = random.uniform(-limit_bound, limit_bound)/10 + self._throttle_hold_value
+
+        self.value = self.value + self._throttle_move_rate if self._throttle_destination > self.value else self.value - self._throttle_move_rate
+
+        threshold_check = self.value >= self._throttle_destination if self._throttle_destination >= self._throttle_hold_value else self.value <= self._throttle_destination
+        if threshold_check:
+            self._throttle_destination = self._throttle_hold_value
 
 def draw_ticks(
     target_bitmap,
