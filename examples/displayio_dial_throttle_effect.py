@@ -54,4 +54,4 @@ my_dial._throttle_move_rate = 0.1  # Fluctuate at "0.1" per throttle_update()
 while True:
 
     my_dial.throttle_update()
-    # display.refresh()
+    display.refresh()
