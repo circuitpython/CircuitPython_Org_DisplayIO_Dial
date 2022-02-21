@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021 Alec Delaney
+# SPDX-FileCopyrightText: 2021 Kevin Matocha, Alec Delaney
 #
 # SPDX-License-Identifier: MIT
 #############################
