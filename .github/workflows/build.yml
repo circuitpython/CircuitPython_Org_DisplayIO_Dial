@@ -12,6 +12,6 @@ jobs:
     steps:
     - name: Install Graphviz
       run: |
-        apt install graphviz
+        sudo apt install graphviv
     - name: Run Build CI workflow
       uses: adafruit/workflows-circuitpython-libs/build@main
