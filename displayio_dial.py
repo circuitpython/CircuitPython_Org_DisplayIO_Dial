@@ -21,23 +21,23 @@ Implementation Notes
 
 """
 
-# pylint: disable=too-many-lines, too-many-instance-attributes, too-many-arguments
-# pylint: disable=too-many-locals, too-many-statements, attribute-defined-outside-init
-
-
 import math
+
 import displayio
 import vectorio
 
 try:
     import bitmaptools
-except NameError:
-    pass  # utilize the blit_rotate_scale function defined herein
+
+    bitmaptools_available = True
+except ImportError:
+    bitmaptools_available = False
+    # utilize the blit_rotate_scale function defined herein
 
 
-from terminalio import FONT as terminalio_FONT
 from adafruit_display_text import bitmap_label
 from adafruit_displayio_layout.widgets.widget import Widget
+from terminalio import FONT as terminalio_FONT
 
 
 class Dial(Widget):
@@ -235,9 +235,7 @@ class Dial(Widget):
         if sweep_angle > 360:
             raise ValueError("sweep_angle must be <= 360 degrees")
 
-        sweep_angle = max(
-            1, sweep_angle
-        )  # constrain to >= 1 to avoid divide by zero errors
+        sweep_angle = max(1, sweep_angle)  # constrain to >= 1 to avoid divide by zero errors
         self._sweep_angle = sweep_angle
 
         if start_angle is None:
@@ -287,7 +285,6 @@ class Dial(Widget):
         self._initialize_dial(width, height)
 
     def _initialize_dial(self, width, height):
-
         for _ in range(len(self)):
             self.pop()
 
@@ -355,9 +352,7 @@ class Dial(Widget):
         self.dial_palette[2] = self._tick_color
 
         # create the dial tilegrid and append to the self Widget->Group
-        self.dial_tilegrid = displayio.TileGrid(
-            self.dial_bitmap, pixel_shader=self.dial_palette
-        )
+        self.dial_tilegrid = displayio.TileGrid(self.dial_bitmap, pixel_shader=self.dial_palette)
         self.append(self.dial_tilegrid)
 
         # create the label for the display_value
@@ -399,9 +394,7 @@ class Dial(Widget):
         # calculate the pixel dimension to fit within width/height (including padding)
         if (width - 2 * self._padding < 0) or (height - 2 * self._padding < 0):
             raise ValueError("Width, height, or padding size makes zero sized box")
-        requested_aspect_ratio = (width - 2 * self._padding) / (
-            height - 2 * self._padding
-        )
+        requested_aspect_ratio = (width - 2 * self._padding) / (height - 2 * self._padding)
         box_aspect_ratio = (right - left) / (bottom - top)
 
         if box_aspect_ratio >= requested_aspect_ratio:
@@ -415,9 +408,9 @@ class Dial(Widget):
         else:
             # keep height and adjust the width
             self._height = height
-            self._width = math.ceil(
-                ((height - 2 * self._padding) * box_aspect_ratio)
-            ) + (2 * self._padding)
+            self._width = math.ceil((height - 2 * self._padding) * box_aspect_ratio) + (
+                2 * self._padding
+            )
             radius = round((height - 2 * self._padding) / (2 * (bottom - top)))
 
         center_x = round(x_center_calc * radius * 2) + self._padding
@@ -453,11 +446,10 @@ class Dial(Widget):
     def _get_font_height(self, font, scale):
         if (self._major_tick_labels == []) or (font is None):
             font_height = 0
-        else:
-            if hasattr(font, "get_bounding_box"):
-                font_height = int(scale * font.get_bounding_box()[1])
-            elif hasattr(font, "ascent"):
-                font_height = int(scale * font.ascent + font.ascent)
+        elif hasattr(font, "get_bounding_box"):
+            font_height = int(scale * font.get_bounding_box()[1])
+        elif hasattr(font, "ascent"):
+            font_height = int(scale * font.ascent + font.ascent)
         return font_height
 
     def _create_needle(self):
@@ -473,15 +465,9 @@ class Dial(Widget):
         )
 
         # if clipped, adjust the needle width up according to the clip amount
-        if (
-            (self._sweep_angle < 180)
-            and (self._clip_needle)
-            and (self._trim_line is not None)
-        ):
+        if (self._sweep_angle < 180) and (self._clip_needle) and (self._trim_line is not None):
             # calculate the line where the needle is most visible
-            max_visible_angle = (2 * math.pi / 360) * (
-                self._start_angle + self._sweep_angle / 2
-            )
+            max_visible_angle = (2 * math.pi / 360) * (self._start_angle + self._sweep_angle / 2)
             while True:
                 if max_visible_angle > math.pi:
                     max_visible_angle -= 2 * math.pi
@@ -490,12 +476,8 @@ class Dial(Widget):
                 else:
                     break
 
-            temp_x = self._dial_center[0] + self._dial_radius * math.sin(
-                max_visible_angle
-            )
-            temp_y = self._dial_center[1] - self._dial_radius * math.cos(
-                max_visible_angle
-            )
+            temp_x = self._dial_center[0] + self._dial_radius * math.sin(max_visible_angle)
+            temp_y = self._dial_center[1] - self._dial_radius * math.cos(max_visible_angle)
 
             temp_line = [self._dial_center, (temp_x, temp_y)]
 
@@ -509,7 +491,6 @@ class Dial(Widget):
             self._needle_width = self._needle_width_requested
 
     def _update_value(self):
-
         if self._display_value:
             format_string = ("{" + self._value_format_string + "}").format(self._value)
             self._value_label.text = format_string
@@ -546,9 +527,7 @@ class Dial(Widget):
         # for motion acceleration).
 
         # if multiple elements are present, they could each have their own movement functions.
-        angle_offset = (2 * math.pi / 360) * (
-            self._start_angle + self._sweep_angle * position
-        )
+        angle_offset = (2 * math.pi / 360) * (self._start_angle + self._sweep_angle * position)
 
         return angle_offset
 
@@ -606,7 +585,6 @@ class Dial(Widget):
 
     @value.setter
     def value(self, new_value):
-
         if new_value != self._value:
             self._value = new_value
             self._update_value()
@@ -688,20 +666,17 @@ def draw_ticks(
         tick_bitmap = displayio.Bitmap(
             tick_stroke, tick_length, tick_color_index + 1
         )  # make a tick line bitmap for blitting
-        tick_bitmap.fill(
-            tick_color_index
-        )  # initialize the tick bitmap with the tick_color_index
+        tick_bitmap.fill(tick_color_index)  # initialize the tick bitmap with the tick_color_index
 
         for i in range(tick_count):
             this_angle = round(
-                (start_angle + ((i * sweep_angle / (tick_count - 1))))
-                * (2 * math.pi / 360),
+                (start_angle + (i * sweep_angle / (tick_count - 1))) * (2 * math.pi / 360),
                 4,
             )  # in radians
             target_position_x = dial_center[0] + dial_radius * math.sin(this_angle)
             target_position_y = dial_center[1] - dial_radius * math.cos(this_angle)
 
-            if "rotozoom" in dir(bitmaptools):  # if core function is available
+            if bitmaptools_available:  # if core function is available
                 bitmaptools.rotozoom(
                     target_bitmap,
                     ox=round(target_position_x),
@@ -759,7 +734,6 @@ def draw_labels(
     label_count = len(tick_labels)
 
     for i, this_label_text in enumerate(tick_labels):
-
         temp_label = bitmap_label.Label(
             font, text=this_label_text
         )  # make a tick line bitmap for blitting
@@ -768,19 +742,15 @@ def draw_labels(
             start_angle + i * sweep_angle / (label_count - 1)
         )  # in radians
 
-        target_position_x = dial_center[0] + (
-            dial_radius + font_height // 2
-        ) * math.sin(this_angle)
-        target_position_y = dial_center[1] - (
-            dial_radius + font_height // 2
-        ) * math.cos(this_angle)
+        target_position_x = dial_center[0] + (dial_radius + font_height // 2) * math.sin(this_angle)
+        target_position_y = dial_center[1] - (dial_radius + font_height // 2) * math.cos(this_angle)
 
         if rotate_labels:
             pass
         else:
             this_angle = 0
 
-        if "rotozoom" in dir(bitmaptools):  # if core function is available
+        if bitmaptools_available:  # if core function is available
             bitmaptools.rotozoom(
                 target_bitmap,
                 ox=round(target_position_x),
@@ -854,7 +824,6 @@ def draw_labels(
 #    See also http://www.efg2.com/Lab/ImageProcessing/RotateScanline.htm
 #    */
 
-# pylint: disable=invalid-name, too-many-branches, too-many-statements
 
 # This function is provided in case the bitmaptools.rotozoom function is not available
 def _blit_rotate_scale(
@@ -872,7 +841,6 @@ def _blit_rotate_scale(
     scale=1.0,  # scale factor (float)
     skip_index=None,  # color index to ignore
 ):
-
     if source is None:
         pass
 
@@ -926,16 +894,8 @@ def _blit_rotate_scale(
     if dy > maxy:
         maxy = int(round(dy))
 
-    dx = (
-        cosAngle * (source.width - px) * scale
-        - sinAngle * (source.height - py) * scale
-        + ox
-    )
-    dy = (
-        sinAngle * (source.width - px) * scale
-        + cosAngle * (source.height - py) * scale
-        + oy
-    )
+    dx = cosAngle * (source.width - px) * scale - sinAngle * (source.height - py) * scale + ox
+    dy = sinAngle * (source.width - px) * scale + cosAngle * (source.height - py) * scale + oy
     if dx < minx:
         minx = int(round(dx))
     if dx > maxx:
@@ -993,9 +953,9 @@ def _blit_rotate_scale(
 
                 if c != skip_index:  # ignore any pixels with skip_index
                     # place the pixel color (c) into the destination bitmap at (x,y)
-                    destination[
-                        x + y * destination.width
-                    ] = c  # direct index into bitmap is faster than tuple
+                    destination[x + y * destination.width] = (
+                        c  # direct index into bitmap is faster than tuple
+                    )
                     # destination[x,y] = c
             u += duRow
             v += dvRow
@@ -1061,35 +1021,31 @@ def _getCoords(interval, ignore_center=False):
 
     if is0:
         top = 1.0
+    elif ignore_center:
+        top = max(xi, xf)
     else:
-        if ignore_center:
-            top = max(xi, xf)
-        else:
-            top = max(xi, xf, 0.5)
+        top = max(xi, xf, 0.5)
 
     if is90:
         right = 1.0
+    elif ignore_center:
+        right = max(yi, yf)
     else:
-        if ignore_center:
-            right = max(yi, yf)
-        else:
-            right = max(yi, yf, 0.5)
+        right = max(yi, yf, 0.5)
 
     if is180:
         bottom = 0
+    elif ignore_center:
+        bottom = min(xi, xf)
     else:
-        if ignore_center:
-            bottom = min(xi, xf)
-        else:
-            bottom = min(xi, xf, 0.5)
+        bottom = min(xi, xf, 0.5)
 
     if is270:
         left = 0
+    elif ignore_center:
+        left = min(yi, yf)
     else:
-        if ignore_center:
-            left = min(yi, yf)
-        else:
-            left = min(yi, yf, 0.5)
+        left = min(yi, yf, 0.5)
 
     xCenter_offset = 0.5 - left
     yCenter_offset = 0.5 - top
