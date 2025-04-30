@@ -7,9 +7,11 @@ This is a basic demonstration of a Dial widget.
 """
 
 import time
+
 import board
 import displayio
 import terminalio
+
 from displayio_dial import Dial
 
 # Fonts used for the Dial tick labels
@@ -42,12 +44,11 @@ my_dial = Dial(
 my_group = displayio.Group()
 my_group.append(my_dial)
 
-display.show(my_group)  # add high level Group to the display
+display.root_group = my_group  # add high level Group to the display
 
 step_size = 1
 
 while True:
-
     # run the dial from minimum to maximum
     for this_value in range(minimum_value, maximum_value + 1, step_size):
         my_dial.value = this_value
