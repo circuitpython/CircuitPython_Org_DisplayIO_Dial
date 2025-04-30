@@ -3,7 +3,7 @@ Introduction
 
 
 .. image:: https://readthedocs.org/projects/circuitpython-displayio_dial/badge/?version=latest
-    :target: https://circuitpython-displayio_dial.readthedocs.io/
+    :target: https://circuitpython-displayio-dial.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 
@@ -17,9 +17,9 @@ Introduction
     :alt: Build Status
 
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-    :alt: Code Style: Black
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Code Style: Ruff
 
 A dial gauge widget for displaying graphical information.
 
@@ -38,8 +38,7 @@ or individual libraries can be installed using
 
 Installing from PyPI
 =====================
-.. note:: This library is not available on PyPI yet. Install documentation is included
-   as a standard element. Stay tuned for PyPI availability!
+.. note:: This library is not available on PyPI.
 
 
 Installing to a Connected CircuitPython Device with Circup
